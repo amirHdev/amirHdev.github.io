@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>
+            Streaming Systems for Real-Time Learning | Amirhossein Akhlaghpour
+        </title>
+        <meta
+            name="description"
+            content="Research on real-time learning pipelines: online optimization, stateful streams, and feature stores."
+        />
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body>
+        <header class="site-header">
+            <div class="container topbar">
+                <nav class="tabs">
+                    <a href="index.html" class="tab">About</a>
+                    <a href="blog.html" class="tab">Blog</a>
+                    <a href="research.html" class="tab active">Research</a>
+                    <a href="resume.html" class="tab">Experience</a>
+                </nav>
+                <div class="icons">
+                    <a href="https://github.com/amirHdev" aria-label="GitHub"
+                        >GitHub</a
+                    >
+                    <a
+                        href="https://www.linkedin.com/in/amirhossein-akhlaghpour-84676392/"
+                        aria-label="LinkedIn"
+                        >LinkedIn</a
+                    >
+                    <a href="mailto:m9.akhlaghpoor@gmail.com" aria-label="Email"
+                        >Email</a
+                    >
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <section class="section">
+                <div class="content">
+                    <h1>
+                        Dynamic Knowledge Synthesis: Architecting Streaming
+                        Systems for Real-Time Learning
+                    </h1>
+                    <p class="meta">Date: January 31, 2026</p>
+                    <p class="meta">
+                        Subject: Distributed Systems, Machine Learning
+                        Engineering (MLE), Stream Processing
+                    </p>
+
+                    <h3>Abstract</h3>
+                    <p>
+                        Traditional machine learning follows a train-then-deploy
+                        paradigm, resulting in model staleness and an inability
+                        to adapt to non-stationary data distributions (concept
+                        drift). In 2026, the industry shift toward real-time
+                        learning (RTL) necessitates a fundamental redesign of
+                        data pipelines. This research post explores the
+                        architectural requirements for streaming systems that
+                        support continuous parameter updates, focusing on the
+                        convergence of online gradient descent, stateful stream
+                        processing, and feature stores.
+                    </p>
+
+                    <h3>
+                        1. The Paradigm Shift: From Batch to Online Learning
+                    </h3>
+                    <p>
+                        The core challenge in real-time learning is the
+                        transition from static datasets to infinite data
+                        streams. In a batch-oriented system, the model is a
+                        snapshot; in a streaming system, the model is a living
+                        state.
+                    </p>
+                    <p>
+                        <strong>Latency sensitivity:</strong> Learning must
+                        occur within the same window as inference to capture
+                        immediate behavioral shifts.
+                    </p>
+                    <p>
+                        <strong>Concept drift:</strong> Streaming systems must
+                        detect shifts in data distributions and trigger adaptive
+                        learning rates.
+                    </p>
+
+                    <h3>2. Architectural Components of RTL Systems</h3>
+                    <p>
+                        To achieve continuous learning at scale, the
+                        architecture must decouple the feature ingress from the
+                        optimization loop.
+                    </p>
+
+                    <h4>A. The Dual-Stream Architecture</h4>
+                    <p>A robust RTL system utilizes two primary paths:</p>
+                    <ul>
+                        <li>
+                            <strong>The Inference Path:</strong> Low-latency
+                            path that serves predictions using the current hot
+                            model weights.
+                        </li>
+                        <li>
+                            <strong>The Training Path:</strong> An asynchronous
+                            loop that consumes labeled data, computes loss, and
+                            updates model weights.
+                        </li>
+                    </ul>
+
+                    <h4>B. Stateful Stream Processing</h4>
+                    <p>
+                        Standard stateless streaming is insufficient for
+                        learning. Real-time learning requires managed state.
+                    </p>
+                    <p>
+                        <strong>Parameter servers on streams:</strong> Model
+                        weights stored in distributed state back-ends (Flink
+                        Managed State or RocksDB).
+                    </p>
+                    <p>
+                        <strong>Checkpointing:</strong> Periodic snapshots of
+                        model state to recover from failures without retraining
+                        from scratch.
+                    </p>
+
+                    <h3>3. Mathematical Optimization in Streams</h3>
+                    <p>
+                        In a streaming context, we cannot perform multiple
+                        epochs over the data. We rely on stochastic gradient
+                        descent (SGD) adapted for streams.
+                    </p>
+                    <p>
+                        The update rule for a weight vector w at time t follows:
+                    </p>
+                    <p>
+                        w<sub>t+1</sub> = w<sub>t</sub> − η ∇L(w<sub>t</sub>;
+                        x<sub>t</sub>, y<sub>t</sub>)
+                    </p>
+                    <p>Where:</p>
+                    <ul>
+                        <li>
+                            η is the learning rate (often decayed or adjusted
+                            via AdaGrad/Adam).
+                        </li>
+                        <li>L is the loss function.</li>
+                        <li>
+                            (x<sub>t</sub>, y<sub>t</sub>) is the streaming
+                            observation and label.
+                        </li>
+                    </ul>
+
+                    <h3>4. Key Technical Challenges and Mitigations</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Challenge</th>
+                                <th>Mitigation Strategy</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Label latency</td>
+                                <td>
+                                    Delayed join patterns with temporal buffers
+                                    until ground truth arrives.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Consistency</td>
+                                <td>
+                                    Versioned weights to align inference with
+                                    feature timestamps.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Catastrophic forgetting</td>
+                                <td>
+                                    Experience replay with historical anchor
+                                    samples.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>5. The Role of Feature Stores</h3>
+                    <p>
+                        In 2026, streaming feature stores (for example, Tecton
+                        or Feast) act as the source of truth. They perform
+                        real-time aggregations and push features directly into
+                        the training loop. This ensures features used for
+                        training are identical to inference, eliminating
+                        training-serving skew.
+                    </p>
+
+                    <h3>6. Conclusion: The Future of Autonomous Systems</h3>
+                    <p>
+                        Streaming systems for real-time learning are moving
+                        toward Auto-ML at the edge. By decentralizing the
+                        training loop, systems can adapt to local data patterns
+                        without backhauling massive datasets to a central cloud.
+                        The convergence of Rust for high-speed data planes and
+                        WASM for portable model execution is currently the
+                        leading frontier in this research space.
+                    </p>
+                    <p><a href="research.html">Back to Research</a></p>
+                </div>
+            </section>
+        </main>
+
+        <footer class="site-footer">
+            <div class="content footer-content">
+                <div>
+                    <a href="mailto:m9.akhlaghpoor@gmail.com"
+                        >m9.akhlaghpoor@gmail.com</a
+                    >
+                    <button
+                        class="copy"
+                        type="button"
+                        data-copy="m9.akhlaghpoor@gmail.com"
+                    >
+                        Copy
+                    </button>
+                    <span>•</span>
+                    <a href="tel:+447367046857">+44 7367 046857</a>
+                    <button
+                        class="copy"
+                        type="button"
+                        data-copy="+447367046857"
+                    >
+                        Copy
+                    </button>
+                </div>
+                <div class="footer-meta">
+                    Built with HTML, CSS, Mermaid.js. Lighthouse Score: 100/100.
+                </div>
+            </div>
+        </footer>
+        <script type="module">
+            document.querySelectorAll("[data-copy]").forEach((button) => {
+                button.addEventListener("click", async () => {
+                    const value = button.getAttribute("data-copy");
+                    try {
+                        await navigator.clipboard.writeText(value);
+                        const previous = button.textContent;
+                        button.textContent = "Copied";
+                        setTimeout(() => {
+                            button.textContent = previous;
+                        }, 1200);
+                    } catch (error) {
+                        console.error(error);
+                    }
+                });
+            });
+        </script>
+    </body>
+</html>
